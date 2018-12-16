@@ -38,7 +38,7 @@ import com.github.yichai.ycard.classifier.ImageClassifier;
 import com.github.yichai.ycard.classifier.ImageClassifierFloatInception;
 import com.github.yichai.ycard.core.DetectProcessor;
 
-public class MainActivity extends Activity implements CvCameraViewListener2, OnTouchListener {
+public class MainActivity extends Activity implements CvCameraViewListener2 {
     private static final String TAG = "OCVSample::Activity";
 
     private CameraView mOpenCvCameraView;
@@ -58,7 +58,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2, OnT
                 {
                     Log.i(TAG, "OpenCV loaded successfully");
                     mOpenCvCameraView.enableView();
-                    mOpenCvCameraView.setOnTouchListener(MainActivity.this);
                 } break;
                 default:
                 {
@@ -99,7 +98,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, OnT
             Log.e(TAG, "Failed to initialize an image classifier.", e);
         }
 
-        // mkdir
+        // mkdir for debug
         File file = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "opencv");
         System.out.println("file" + file.getAbsolutePath());
@@ -227,18 +226,5 @@ public class MainActivity extends Activity implements CvCameraViewListener2, OnT
         } else {
             // Permission has already been granted
         }
-    }
-
-    @SuppressLint("SimpleDateFormat")
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-//        Log.i(TAG,"onTouch event");
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-//        String currentDateandTime = sdf.format(new Date());
-//        String fileName = Environment.getExternalStorageDirectory().getPath() +
-//                "/sample_picture_" + currentDateandTime + ".jpg";
-//        mOpenCvCameraView.takePicture(fileName);
-//        Toast.makeText(this, fileName + " saved", Toast.LENGTH_SHORT).show();
-        return false;
     }
 }

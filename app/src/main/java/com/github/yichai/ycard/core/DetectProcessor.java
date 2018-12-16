@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.opencv.core.Core.FONT_HERSHEY_SIMPLEX;
-import static org.opencv.core.Core.min;
 
 public class DetectProcessor {
 
@@ -110,9 +109,8 @@ public class DetectProcessor {
 
                 if (!caputured) {
                     Mat result = findTextarea(resizeM);
-                    caputured = true;
+//                    caputured = true;
                 }
-//                Imgproc.draw
             }
         }
 
@@ -276,6 +274,24 @@ public class DetectProcessor {
 
         List<DetectResultEntity> digits = new ArrayList<>();
 
+        int validContourCount = 0;
+
+        for (MatOfPoint subCnt : subContours) {
+            MatOfPoint2f curve = new MatOfPoint2f(subCnt.toArray());
+
+            double contourArea = Imgproc.contourArea(subCnt);
+            System.out.println("contourArea " + contourArea);
+            if (Math.abs(contourArea) > 30) {
+                validContourCount ++;
+            }
+        }
+
+        if (validContourCount != 18) {
+            return;
+        } else {
+            caputured = true;
+        }
+
         for (MatOfPoint subCnt : subContours) {
             MatOfPoint2f curve = new MatOfPoint2f(subCnt.toArray());
 
@@ -344,56 +360,9 @@ public class DetectProcessor {
             Utils.matToBitmap(rgb, bmp);
         }
         catch (CvException e){
-//            Log.d("Exception",e.getMessage());
             e.printStackTrace();
         }
         return bmp;
-    }
-
-    private static Mat getPerspective(Mat input, MatOfPoint2f curve, MatOfPoint2f approxCurve) {
-        RotatedRect minAreaRect = Imgproc.minAreaRect(curve);
-        Rect boundingBox = minAreaRect.boundingRect();
-
-        Point p0 = new Point(approxCurve.get(0, 0));
-        Point p1 = new Point(approxCurve.get(1, 0));
-        Point p2 = new Point(approxCurve.get(2, 0));
-        Point p3 = new Point(approxCurve.get(3, 0));
-
-        Mat tempMat = input.clone();
-        Imgproc.circle(tempMat, p0,1, new Scalar(255, 0, 0));
-        Imgproc.circle(tempMat, p1,1, new Scalar(255, 0, 0));
-        Imgproc.circle(tempMat, p2,1, new Scalar(255, 0, 0));
-        Imgproc.circle(tempMat, p3,1, new Scalar(255, 0, 0));
-
-        drawResult(tempMat, 9);
-
-        p0.x -= boundingBox.tl().x;
-        p1.x -= boundingBox.tl().x;
-        p2.x -= boundingBox.tl().x;
-        p3.x -= boundingBox.tl().x;
-
-        p0.y -= boundingBox.tl().y;
-        p1.y -= boundingBox.tl().y;
-        p2.y -= boundingBox.tl().y;
-        p3.y -= boundingBox.tl().y;
-
-        List<Point> source = new ArrayList<Point>();
-        source.add(p1);
-        source.add(p2);
-        source.add(p3);
-        source.add(p0);
-
-        List<Point> reorderedList = reorder(source);
-
-        Mat startM = Converters.vector_Point2f_to_Mat(reorderedList);
-
-        Mat contourMat = new Mat(input, boundingBox);
-
-        drawResult(contourMat, 10);
-
-        Mat result = warp(contourMat, startM, boundingBox);
-
-        return result;
     }
 
     private static Mat enlargeMat(Mat input) {
